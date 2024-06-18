@@ -30,6 +30,7 @@ export const setupServer = () => {
     res.status(404).json({
       message: "Not found",
     });
+    next();
   });
 
   app.use((err, req, res, next) => {
@@ -37,6 +38,7 @@ export const setupServer = () => {
       message: "Something went wrong",
       error: err.message,
     });
+    next();
   });
 
   app.listen(PORT, () => {
