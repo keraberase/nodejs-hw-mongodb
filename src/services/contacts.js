@@ -3,8 +3,8 @@ import { ContactsCollection } from '../db/models/contact.js';
  import { SORT_ORDER } from '../constants/index.js';
 
 export const getAllContacts = async ({
-  page,
-  perPage,
+  page = 1,
+  perPage = 10,
   sortOrder = SORT_ORDER.ASC,
   sortBy = '_id',
 }) => {
@@ -21,7 +21,7 @@ export const getAllContacts = async ({
     .limit(limit)
     .sort({ [sortBy]: sortOrder })
     .exec();
-    
+
   const paginationData = calculatePaginationData(contactsCount, perPage, page);
 
   return {
