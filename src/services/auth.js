@@ -1,4 +1,8 @@
 import bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
+
+import { FIFTEEN_MINUTES, THIRTY_DAYS } from '../constants/index.js';
+import { SessionsCollection } from '../db/models/session.js';
 import { UsersCollection } from '../db/models/user.js';
 import createHttpError from 'http-errors';
 
@@ -25,6 +29,16 @@ export const loginUser = async (payload) => {
   if (!isEqual) {
     throw createHttpError(401, 'Unauthorized');
   }
+await SessionsCollection.deleteOne({ userId: user._id });
 
-  // далі ми доповнемо цей контролер
+const accessToken = randomBytes(30).toString('base64');
+const refreshToken = randomBytes(30).toString('base64');
+
+return await SessionsCollection.create({
+  userId: user._id,
+  accessToken,
+  refreshToken,
+  accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
+  refreshTokenValidUntil: new Date(Date.now() + THIRTY_DAYS),
+});
 };
