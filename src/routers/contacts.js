@@ -15,7 +15,7 @@ import {
 } from '../controllers/contacts.js';
 const router = Router();
 
-router.use(authenticate);
+router.use('/', authenticate);
 router.use('/:contactId', isValidId);
 router.get('/', ctrlWrapper (getContactsController));
 router.get('/:contactId', ctrlWrapper(getContactByIdController));
