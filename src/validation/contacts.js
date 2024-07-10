@@ -1,3 +1,5 @@
+// src/validation/contacts.js
+
 import Joi from 'joi';
 
 export const createContactSchema = Joi.object({
@@ -8,6 +10,7 @@ export const createContactSchema = Joi.object({
   contactType: Joi.string().valid('work', 'home', 'personal'),
   userId: Joi.string(),
 });
+
 export const updateContactSchema = Joi.object({
   name: Joi.string().min(3).max(20),
   phoneNumber: Joi.string().min(3).max(20),
