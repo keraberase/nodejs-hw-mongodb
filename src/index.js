@@ -5,5 +5,6 @@ const bootstrap = async () => {
   await initMongoConnection();
   setupServer();
 };
+console.log(bootstrap);
 
-bootstrap();
+bootstrap(); 
