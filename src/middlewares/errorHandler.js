@@ -1,31 +1,33 @@
-import { HttpError } from 'http-errors';
-import { MongooseError } from 'mongoose';
+ // src/middlewares/errorHandler.js
 
-export const errorHandler = (err, req, res, next) => {
-  if (err instanceof HttpError) {
-    res.status(err.status).json({
-      status: err.status,
-      message: err.name,
-      data: err,
-    });
-    return;
-  }
+ import { HttpError } from 'http-errors';
+ import { MongooseError } from 'mongoose';
 
-  if (err instanceof MongooseError) {
-    res.status(404).json({
-      status: 404,
-      message: 'NotFoundError',
-      data: {
-        message: 'Contact not found',
-      },
-    });
-    return;
-  }
+ export const errorHandler = (err, req, res, next) => {
+    if (err instanceof HttpError) {
+        res.status(err.status).json({
+          status: err.status,
+          message: err.name,
+          data: err,
+        });
+        return;
+      }
 
-  res.json({
-    status: 500,
-    message: 'Something went wrong',
-    error: err.message,
-  });
-  next(err);
-};
+      if (err instanceof MongooseError) {
+        res.status(404).json({
+          status: 404,
+          message: "NotFoundError",
+          data: {
+            message:"Contact not found"
+          },
+        });
+        return;
+      }
+
+    res.json({
+        status: 500,
+        message: 'Something went wrong',
+        error: err.message,
+      });
+    next(err);
+  };

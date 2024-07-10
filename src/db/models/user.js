@@ -1,3 +1,4 @@
+// src/db/models/user.js
 import { model, Schema } from 'mongoose';
 
 const usersSchema = new Schema(
@@ -8,6 +9,7 @@ const usersSchema = new Schema(
   },
   { timestamps: true, versionKey: false },
 );
+
 usersSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
