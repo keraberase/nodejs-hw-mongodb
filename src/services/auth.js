@@ -1,5 +1,3 @@
-
-
 import bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 
@@ -21,7 +19,6 @@ import fs from 'node:fs/promises';
 const createSession = (userId) => {
   const accessToken = randomBytes(30).toString('base64');
   const refreshToken = randomBytes(30).toString('base64');
-
   return {
     userId,
     accessToken,
@@ -30,61 +27,45 @@ const createSession = (userId) => {
     refreshTokenValidUntil: new Date(Date.now() + THIRTY_DAYS),
   };
 };
-
 export const registerUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });
   if (user) throw createHttpError(409, 'Email in use');
-
   const encryptedPassword = await bcrypt.hash(payload.password, 10);
-
   return await UsersCollection.create({
     ...payload,
     password: encryptedPassword,
   });
 };
-
 export const loginUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });
   if (!user) {
     throw createHttpError(404, 'User not found');
   }
   const isEqual = await bcrypt.compare(payload.password, user.password); // Порівнюємо хеші паролів
-
   if (!isEqual) {
     throw createHttpError(401, 'Unauthorized');
   }
-
   await SessionsCollection.deleteOne({ userId: user._id });
-
   const session = createSession(user._id);
-
   return await SessionsCollection.create(session);
 };
-
 export const refreshUsersSession = async ({ sessionId, refreshToken }) => {
   const session = await SessionsCollection.findOne({
     _id: sessionId,
     refreshToken,
   });
-
   if (!session) {
     throw createHttpError(401, 'Session not found');
   }
-
   const isSessionTokenExpired =
     new Date() > new Date(session.refreshTokenValidUntil);
-
   if (isSessionTokenExpired) {
     throw createHttpError(401, 'Session token expired');
   }
-
   await SessionsCollection.deleteOne({ _id: sessionId, refreshToken });
-
   const newSession = createSession(session.userId);
-
   return await SessionsCollection.create(newSession);
 };
-
 export const logoutUser = async (sessionId) => {
   await SessionsCollection.deleteOne({ _id: sessionId });
 };
@@ -109,6 +90,7 @@ const resetPasswordTemplatePath = path.join(
   'reset-password-email.html',
 );
 
+
   const templateSource = (
     await fs.readFile(resetPasswordTemplatePath)
   ).toString();
@@ -120,6 +102,7 @@ const resetPasswordTemplatePath = path.join(
   });
 
   try {
+
     await sendEmail({
       from: env(SMTP.SMTP_FROM),
       to: email,
@@ -127,11 +110,7 @@ const resetPasswordTemplatePath = path.join(
       html,
     });
   } catch (err) {
-    if (err instanceof Error)
-      throw createHttpError(
-        500,
-        'Failed to send the email, please try again later.',
-      );
+   if (err instanceof Error) throw createHttpError(500, err.message);
     throw err;
   }
 };
@@ -142,8 +121,7 @@ export const resetPassword = async (payload) => {
   try {
     entries = jwt.verify(payload.token, env('JWT_SECRET'));
   } catch (err) {
-    if (err instanceof Error)
-      throw createHttpError(401, 'Token is expired or invalid.');
+    if (err instanceof Error) throw createHttpError(401, 'Token is expired or invalid.');
     throw err;
   }
 
