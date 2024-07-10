@@ -1,4 +1,4 @@
- // src/services/contacts.js
+
 
  import { ContactsCollection } from '../db/models/contact.js';
  import { calculatePaginationData } from '../utils/calculatePaginationData.js';
@@ -24,16 +24,6 @@
       contactsQuery.where('isFavourite').equals(filter.isFavourite);
   }
 
-  //  const contactsCount = await ContactsCollection.find()
-  //  .merge(contactsQuery)
-  //  .countDocuments();
-
-  //  const contacts = await contactsQuery
-  //  .skip(skip)
-  //  .limit(limit)
-  //  .sort({ [sortBy]: sortOrder })
-  //  .exec();
-
    const [contactsCount, contacts] = await Promise.all([
     ContactsCollection.find().merge(contactsQuery).countDocuments(),
     contactsQuery
@@ -56,15 +46,15 @@
    return contact;
  };
 
- export const createContact = async (payload, userId) => {
-  const contact = await ContactsCollection.create({...payload, userId});
+export const createContact = async ({payload, photo: photoUrl}, userId) => {
+  const contact = await ContactsCollection.create({...payload, photo: photoUrl, userId});
   return contact;
 };
 
- export const updateContact = async (contactId, userId, payload, options = {}) => {
+ export const updateContact = async (contactId, userId, {payload, photo: photoUrl}, options = {}) => {
   const rawResult = await ContactsCollection.findOneAndUpdate(
     { _id: contactId, userId },
-    payload,
+    { payload, photo: photoUrl },
     {
       new: true,
       includeResultMetadata: true,

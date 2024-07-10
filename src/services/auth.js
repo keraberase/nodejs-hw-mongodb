@@ -110,7 +110,11 @@ const resetPasswordTemplatePath = path.join(
       html,
     });
   } catch (err) {
-   if (err instanceof Error) throw createHttpError(500, err.message);
+    if (err instanceof Error)
+      throw createHttpError(
+        500,
+        'Failed to send the email, please try again later.',
+      );
     throw err;
   }
 };
