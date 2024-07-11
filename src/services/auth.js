@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
+
 import { UsersCollection } from '../db/models/user.js';
 import {
   FIFTEEN_MINUTES,
@@ -8,10 +9,13 @@ import {
 } from '../constants/index.js';
 import { SessionsCollection } from '../db/models/session.js';
 import createHttpError from 'http-errors';
+
 import jwt from 'jsonwebtoken';
+
 import { SMTP } from '../constants/index.js';
 import { env } from '../utils/env.js';
 import { sendEmail } from '../utils/sendMail.js';
+
 import handlebars from 'handlebars';
 import path from 'node:path';
 import fs from 'node:fs/promises';
@@ -19,6 +23,7 @@ import fs from 'node:fs/promises';
 const createSession = (userId) => {
   const accessToken = randomBytes(30).toString('base64');
   const refreshToken = randomBytes(30).toString('base64');
+
   return {
     userId,
     accessToken,
@@ -31,7 +36,9 @@ const createSession = (userId) => {
 export const registerUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });
   if (user) throw createHttpError(409, 'Email in use');
+
   const encryptedPassword = await bcrypt.hash(payload.password, 10);
+
   return await UsersCollection.create({
     ...payload,
     password: encryptedPassword,
@@ -43,12 +50,16 @@ export const loginUser = async (payload) => {
   if (!user) {
     throw createHttpError(404, 'User not found');
   }
-  const isEqual = await bcrypt.compare(payload.password, user.password);
+  const isEqual = await bcrypt.compare(payload.password, user.password); // Порівнюємо хеші паролів
+
   if (!isEqual) {
     throw createHttpError(401, 'Unauthorized');
   }
+
   await SessionsCollection.deleteOne({ userId: user._id });
+
   const session = createSession(user._id);
+
   return await SessionsCollection.create(session);
 };
 
@@ -57,16 +68,22 @@ export const refreshUsersSession = async ({ sessionId, refreshToken }) => {
     _id: sessionId,
     refreshToken,
   });
+
   if (!session) {
     throw createHttpError(401, 'Session not found');
   }
+
   const isSessionTokenExpired =
     new Date() > new Date(session.refreshTokenValidUntil);
+
   if (isSessionTokenExpired) {
     throw createHttpError(401, 'Session token expired');
   }
+
   await SessionsCollection.deleteOne({ _id: sessionId, refreshToken });
+
   const newSession = createSession(session.userId);
+
   return await SessionsCollection.create(newSession);
 };
 
@@ -89,30 +106,21 @@ export const requestResetToken = async (email) => {
       expiresIn: '5m',
     },
   );
-
-  console.log('Generated reset token:', resetToken);
-
+ console.log(resetToken);
   const resetPasswordTemplatePath = path.join(
     TEMPLATES_DIR,
     'reset-password-email.html',
   );
 
-  let templateSource;
-  try {
-    templateSource = (await fs.readFile(resetPasswordTemplatePath)).toString();
-    console.log('Template loaded successfully');
-  } catch (err) {
-    console.error('Failed to load email template', err);
-    throw createHttpError(500, 'Failed to load email template');
-  }
+  const templateSource = (
+    await fs.readFile(resetPasswordTemplatePath)
+  ).toString();
 
   const template = handlebars.compile(templateSource);
   const html = template({
     name: user.name,
     link: `${env('APP_DOMAIN')}/reset-password?token=${resetToken}`,
   });
-
-  console.log('Compiled email HTML:', html);
 
   try {
     await sendEmail({
@@ -121,15 +129,12 @@ export const requestResetToken = async (email) => {
       subject: 'Reset your password',
       html,
     });
-    console.log('Email sent successfully to:', email);
   } catch (err) {
-    console.error('Failed to send the email', err);
-    if (err instanceof Error) {
+    if (err instanceof Error)
       throw createHttpError(
         500,
         'Failed to send the email, please try again later.',
       );
-    }
     throw err;
   }
 };
@@ -140,9 +145,8 @@ export const resetPassword = async (payload) => {
   try {
     entries = jwt.verify(payload.token, env('JWT_SECRET'));
   } catch (err) {
-    if (err instanceof Error) {
+    if (err instanceof Error)
       throw createHttpError(401, 'Token is expired or invalid.');
-    }
     throw err;
   }
 
