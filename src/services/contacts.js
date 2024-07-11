@@ -1,4 +1,4 @@
-
+ // src/services/contacts.js
 
  import { ContactsCollection } from '../db/models/contact.js';
  import { calculatePaginationData } from '../utils/calculatePaginationData.js';
@@ -47,9 +47,9 @@
  };
 
  export const createContact = async (payload, userId) => {
-   const contact = await ContactsCollection.create({ ...payload, userId });
-   return contact;
- };
+  const contact = await ContactsCollection.create({...payload, userId});
+  return contact;
+};
 
  export const updateContact = async (contactId, userId, payload, options = {}) => {
   const rawResult = await ContactsCollection.findOneAndUpdate(

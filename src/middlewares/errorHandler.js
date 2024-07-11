@@ -1,5 +1,3 @@
- // src/middlewares/errorHandler.js
-
  import { HttpError } from 'http-errors';
  import { MongooseError } from 'mongoose';
 
