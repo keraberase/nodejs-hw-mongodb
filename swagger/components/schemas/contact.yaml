@@ -3,8 +3,6 @@ required:
   - _id
   - name
   - phoneNubmer
-  - email
-  - isFavourite
   - contactType
 properties:
   _id:
