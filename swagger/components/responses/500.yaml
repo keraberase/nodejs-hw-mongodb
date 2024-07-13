@@ -1,4 +1,4 @@
-description: Server error
+description: Internal server error
 content:
   application/json:
     schema:
@@ -13,7 +13,7 @@ content:
           example: 500
         message:
           type: string
-          example: Server error
+          example: Internal server error
         data:
           type: object
           required:
@@ -21,4 +21,4 @@ content:
           properties:
             message:
               type: string
-              example: 'Server is crashed'
+              example: 'Internal server error'
