@@ -12,16 +12,16 @@ requestBody:
         type: object
         required:
           - name
-          - phoneNubmer
+          - phoneNumber
           - contactType
-          - UserId
+          - userId
         properties:
           name:
             description: "Contact's name"
             type: string
             example: 'Joi'
-          phoneNubmer:
-            description: "Contact's phoneNubmer"
+          phoneNumber:
+            description: "Contact's phone number"
             type: string
             example: '1234567890'
           email:
@@ -29,7 +29,7 @@ requestBody:
             type: string
             example: 'keraberas007@ukr.net'
           isFavourite:
-            description: "Contact's isFavourite. Should be true or false"
+            description: "Whether the contact is a favourite. Should be true or false"
             type: boolean
             example: false
           contactType:
@@ -37,10 +37,6 @@ requestBody:
             type: string
             enum: ['work', 'home', 'personal']
             example: personal
-          UserId:
-            description: "User's id"
-            type: string
-            example: 66902a6f156ca8edd6af5367
           photo:
             description: "Link to contact's photo"
             type: string
@@ -66,5 +62,9 @@ responses:
             data:
               type: object
               $ref: '../../components/schemas/contact.yaml'
+  '404':
+    $ref: '../../components/responses/404.yaml'
   '401':
     $ref: '../../components/responses/401.yaml'
+  '500':
+    $ref: '../../components/responses/500.yaml'
